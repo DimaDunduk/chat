@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create a new Chatroom</title>
+</head>
+<body>
+    <h2>Create a New Chatroom</h2>
+
+    <form method="post" action="{% url 'create_chatroom' %}">
+        {% csrf_token %}
+        <input type="text" name="room_name" placeholder="Chatroom name" required>
+        <button type="submit">Create Chatroom</button>
+    </form>
+
+    <a href="{% url 'chatroom_list' %}">Back to chatroom list</a>
+</body>
+</html>

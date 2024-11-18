@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Chatrooms</title>
+</head>
+<body>
+    <h2>Available Chatrooms</h2>
+
+    <form method="get" action="{% url 'chatroom_list' %}">
+        <input type="text" name="q" placeholder="Search chatrooms" value="{{ query|default:'' }}">
+        <button type="submit">Search</button>
+    </form>
+
+    <ul>
+        {% for room in chatrooms %}
+            <li><a href="{% url 'chatroom' room.name %}">{{ room.name }}</a></li>
+        {% empty %}
+            <li>No chatrooms found.</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'create_chatroom' %}">Create a new chatroom</a>
+</body>
+</html>

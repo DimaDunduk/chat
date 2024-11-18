@@ -1,0 +1,6 @@
+{% if pet_profile %}
+    <p>City: {{ pet_profile.city }}</p>
+    <p>Pet Info: {{ pet_profile.pet_name }}</p>
+{% else %}
+    <p>No pet profile available.</p>
+{% endif %}

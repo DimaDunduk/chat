@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatroom</title>
+    <style>
+        /* Basic styling for the chat room */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column; /* Stack items vertically */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+
+        #users-container {
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #fff;
+            margin-bottom: 20px; /* Add space below the users list */
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+
+        .user-gallery {
+            display: flex;
+            flex-wrap: nowrap; /* Prevent wrapping */
+            gap: 25px; /* Space between users */
+        }
+
+        .user {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 180px; /* Fixed width for each user */
+        }
+
+        .user img {
+            border-radius: 5%;
+            border: 1px solid #bfbfbf;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 5px;
+        }
+
+        .user-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .pet-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            grid-template-rows: repeat(2, 1fr); /* 2 rows */
+            gap: 15px; /* Space between pet containers */
+            width: 100%;
+        }
+
+        .pet-container {
+            border: 1px solid rgb(211, 211, 211); /* Black thick border */
+            border-radius: 5%;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .pet-container img {
+            width: 100%;
+            height: 100%;
+            border-radius: 6%;
+            margin-bottom: 5px;
+        }
+
+        .pet-name {
+            font-size: 0.55em;
+            color: #333;
+        }
+
+        /* Chat Container */
+        #chat-container {
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #fff;
+        }
+
+        #chat-log {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .chat-message {
+            padding: 5px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .chat-message strong {
+            color: #2b87ff;
+        }
+
+        .chat-message time {
+            color: #aaa;
+            font-size: 0.85em;
+        }
+
+        #chat-input {
+            display: flex;
+        }
+
+        #chat-input input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+
+        #chat-input button {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-left: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <div id="users-container">
+            <h4>Users in Chatroom:</h4>
+            <div class="user-gallery">
+                {% for pets_person in users_in_chatroom %}
+                    <div class="user">
+                        <!-- Owner's profile picture -->
+                        <img src="{{ profile_image |default:'/media/profile_images/default-profile.png'}}" alt="Profile Image">
+                        <!-- Owner's name -->
+                        <div class="user-name">{{ pets_person.user.first_name }} {{ pets_person.user.last_name }} {{ pets_person.profile_image }}</div>
+
+                        <!-- Pets grid: 2x2 layout for pets -->
+                        <div class="pet-grid">
+                            {% for pet in pets_person.pets.all %}
+                                <div class="pet-container">
+                                    <img src="{{ pet.image.url|default:'/media/profile_images/default-pet.png' }}" alt="{{ pet.name }}">
+                                    <div class="pet-name">{{ pet.name }}</div>
+                                </div>
+                            {% empty %}
+                                <!-- Display empty containers if no pets are present -->
+                                <div class="pet-container">
+                                    <img src="/static/images/default-pet.png" alt="Pet Image">
+                                    <div class="pet-name">No Pet</div>
+                                </div>
+                                <div class="pet-container">
+                                    <img src="/static/images/default-pet.png" alt="Pet Image">
+                                    <div class="pet-name">No Pet</div>
+                                </div>
+                                <div class="pet-container">
+                                    <img src="/static/images/default-pet.png" alt="Pet Image">
+                                    <div class="pet-name">No Pet</div>
+                                </div>
+                                <div class="pet-container">
+                                    <img src="/static/images/default-pet.png" alt="Pet Image">
+                                    <div class="pet-name">No Pet</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div id="chat-container">
+            <h4>Chat Name:</h4>
+            <h2>{{ chatroom.name }}</h2>
+
+            <div id="chat-log">
+                {% for message in chat_messages %}
+                    <div class="chat-message">
+                        <strong>{{ message.user.username }}:</strong> {{ message.message }}
+                        <time>{{ message.created }}</time>
+                    </div>
+                {% empty %}
+                    <p>No messages yet. Start the conversation!</p>
+                {% endfor %}
+            </div>
+
+            <div id="chat-input">
+                <input type="text" id="messageInput" placeholder="Type a message...">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+           
+            if (message) {
+                // Simulating message sending (this should use WebSockets or AJAX in a full application)
+                const chatLog = document.getElementById('chat-log');
+                const messageHtml = `<div class="chat-message">
+                    <strong>You:</strong> ${message} <time>(Just now)</time>
+                </div>`;
+                chatLog.insertAdjacentHTML('beforeend', messageHtml);
+                input.value = '';
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
+        }
+    </script>
+
+</body>
+</html>
